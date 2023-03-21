@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>一键抠图</title>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.16.0/umd/popper.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+    <script>
+        $(document).ready(function() {
+            $('#upload-form').submit(function(event) {
+                event.preventDefault();
+
+                var form = $(this);
+                var file = form.find('input[type="file"]').get(0).files[0];
+
+                if (!file) {
+                    alert('Please select a file');
+                    return;
+                }
+
+                var formData = new FormData();
+                formData.append('file', file);
+
+                $.ajax({
+                    url: '/upload',
+                    type: 'POST',
+                    data: formData,
+                    processData: false,
+                    contentType: false,
+                    xhr: function() {
+                        var xhr = $.ajaxSettings.xhr();
+
+                        if (xhr.upload) {
+                            xhr.upload.addEventListener('progress', function(event) {
+                                if (event.lengthComputable) {
+                                    var percent = Math.round(event.loaded / event.total * 100);
+                                    $('#upload-progress').css('width', percent + '%').text(percent + '%');
+                                }
+                            }, false);
+                        }
+
+                        return xhr;
+                    },
+                    success: function(data) {
+                        $('#upload-progress').css('width', '100%').text('100%');
+                        $('#process-progress').css('width', '0%').text('0%');
+                        $('#download-button').attr('href', '/download/' + data).hide();
+                        $('#clear-button').hide();
+                        $('#process-button').show().attr('data-filename', data);
+                    },
+                    error: function() {
+                        alert('Upload failed');
+                    }
+                });
+            });
+
+            $('#process-button').click(function() {
+                var button = $(this);
+                var filename = button.attr('data-filename');
+
+                $.ajax({
+                    url: '/process/' + filename,
+                    success: function(data) {
+                        $('#process-progress').css('width', '100%').text('100%');
+                        $('#download-button').show();
+                        $('#clear-button').show();
+                        button.hide();
+                    },
+                    error: function() {
+                        alert('Processing failed');
+                    }
+                });
+
+                setInterval(function() {
+                    $.ajax({
+                        url: '/progress/' + filename,
+                        success: function(data) {
+                            $('#process-progress').css('width', data + '%').text(data + '%');
+                        },
+                        error: function() {
+                            clearInterval(this);
+                        }
+                    });
+                }, 1000);
+            });
+
+            $('#clear-button').click(function() {
+                $.ajax({
+                    url: '/clear',
+                    success: function() {
+                        location.reload();
+                    },
+                    error: function() {
+                        alert('Clear failed');
+                    }
+                });
+            });
+        });
+    </script>
+</head>
+<body>
+    <div class="container mt-5">
+        <h1 class="text-center mb-5">一键抠图</h1>
+        <div class="row">
+            <div style="margin: auto" class="col-md-6">
+                <form id="upload-form">
+                    <div class="form-group">
+                        <label for="file">选择文件:</label>
+                        <input type="file" class="form-control-file" id="file" name="file">
+                    </div>
+                    <button type="submit" class="btn btn-primary">上传</button>
+                    <div class="progress mt-3">
+                        <div id="upload-progress" class="progress-bar" role="progressbar" style="width: 0%">0%</div>
+                    </div>
+                    <br><br>
+                </form>
+            </div>
+            <br><br>
+            <div style="margin: auto" class="col-md-6">
+                <button id="process-button" type="button" class="btn btn-primary" style="display: none">抠图</button>
+                <a id="download-button" href="#" class="btn btn-primary" style="display: none">下载</a>
+                <button id="clear-button" type="button" class="btn btn-danger" style="display: none">清空</button>
+                <div class="progress mt-3">
+                    <div id="process-progress" class="progress-bar" role="progressbar" style="width: 0%">0%</div>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>
