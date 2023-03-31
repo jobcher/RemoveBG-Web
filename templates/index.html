@@ -100,18 +100,92 @@
             });
         });
     </script>
+    <style>
+    /* 设置样式 */
+    .container {
+      margin-top: 30px;
+    }
+    canvas {
+      max-width: 100%;
+      height: auto;
+      border: 1px solid #ddd;
+    }
+    header {
+			background-color: #333;
+			color: #fff;
+			padding: 10px;
+		}
+    nav p {
+			list-style: none;
+			margin: 0;
+			padding: 0;
+			display: flex;
+			justify-content: center;
+			align-items: center;
+            font-size: 30px;
+            font-weight: bold;
+		}
+    input[type="file"] {
+			padding: 10px;
+			border-radius: 5px;
+			border: none;
+			background-color: #eee;
+		}
+    h1 {
+        margin-top: 0;
+        font-size: 20px;
+        font-weight: bold;
+    }
+    button {
+			padding: 10px;
+			border: none;
+			border-radius: 5px;
+			background-color: #333;
+			color: #fff;
+			font-weight: bold;
+			cursor: pointer;
+			transition: background-color 0.3s ease;
+		}
+	button:hover {
+			background-color: #555;
+		}
+        div {
+            margin-top: 10px;
+        }
+        progress {
+			width: 100%;
+			height: 10px;
+			border: none;
+			background-color: #eee;
+			margin-top: 10px;
+			border-radius: 5px;
+			overflow: hidden;
+		}
+		progress::-webkit-progress-bar {
+			background-color: #eee;
+			border-radius: 5px;
+		}
+		progress::-webkit-progress-value {
+			background-color: #333;
+			border-radius: 5px;
+		}
+  </style>
 </head>
 <body>
+	<header>
+		<nav>
+            <p class="title">一键抠图</p>
+		</nav>
+	</header>
     <div class="container mt-5">
-        <h1 class="text-center mb-5">一键抠图</h1>
         <div class="row">
             <div style="margin: auto" class="col-md-6">
                 <form id="upload-form">
                     <div class="form-group">
                         <label for="file">选择文件:</label>
                         <input type="file" class="form-control-file" id="file" name="file">
+                        <button type="submit" class="btn btn-primary">上传</button>
                     </div>
-                    <button type="submit" class="btn btn-primary">上传</button>
                     <div class="progress mt-3">
                         <div id="upload-progress" class="progress-bar" role="progressbar" style="width: 0%">0%</div>
                     </div>
